@@ -8,9 +8,9 @@ select t3.*,
 case when s1 >= 20 and c1 >=5 then 'achieved'
      else 'failed'
 end as challenge_targets,
-rank() over(order by s1 desc) as rnk
+dense_rank() over(order by s1 desc,c1 desc) as rnk
 from (
-select w1,user_id,
+select user_id,
 sum(study_duration_hrs)as s1,
 count(distinct case when overall_completion_percentage = 100 then lesson_id end) as c1
 from(
@@ -22,7 +22,8 @@ left join lesson_details t2
 on t1.lesson_id = t2.lesson_id
 )
 where w1 >= 37
-group by w1,user_id
+group by user_id
 )t3
 )t4
+where t4.challenge_targets = 'achieved'
 --order by challenge_targets,s1 desc
